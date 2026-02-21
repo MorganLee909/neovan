@@ -1,0 +1,16 @@
+{
+  "name": "substratum",
+  "version": "0.1.0",
+  "description": "Simple JS framework",
+  "homepage": "https://github.com/MorganLee909/substratum#readme",
+  "bugs": {
+    "url": "https://github.com/MorganLee909/substratum/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MorganLee909/substratum.git"
+  },
+  "author": "Lee Morgan",
+  "type": "module",
+  "main": "index.js"
+}
