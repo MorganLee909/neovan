@@ -12,5 +12,9 @@
   },
   "author": "Lee Morgan",
   "type": "module",
-  "main": "index.js"
+  "main": "index.js",
+  "dependencies": {
+    "esbuild": "^0.27.3",
+    "html-minifier-terser": "^7.2.0"
+  }
 }
