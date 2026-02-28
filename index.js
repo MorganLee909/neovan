@@ -70,10 +70,9 @@ const parse = async (dir)=>{
         html = insert(html, esbuildProm.outputFiles[0].text, "js");
     }
 
-    const writeFile = `${dir.replace("/src", "/.build")}/index.html`;
-    console.log(writeFile);
-    console.log(html);
-    fs.writeFile(writeFile, html);
+    const writeDir = `${dir.replace("/src", "/.build")}`;
+    await fs.mkdir(writeDir, {recursive: true});
+    fs.writeFile(`${writeDir}/index.html`, html);
 }
 
 const insert = (html, insertString, type)=>{
