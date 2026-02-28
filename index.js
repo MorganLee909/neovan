@@ -6,8 +6,12 @@ import parseDir from "./parseDir.js";
 const srcRoot = path.join(import.meta.dirname, "src");
 
 const main = (options)=> {
+    console.time("Build Time");
+
     fs.mkdir(path.join(import.meta.dirname, ".build"), {recursive: true});
     readFiles(srcRoot);
+
+    console.timeEnd("Build Time");
 }
 
 const readFiles = async (dir)=>{
