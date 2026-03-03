@@ -3,29 +3,28 @@ import path from "path";
 
 import parseDir from "./parseDir.js";
 
-const srcRoot = path.join(import.meta.dirname, "src");
+export default async (express, options = {})=> {
+    console.time("Build Completed In");
 
-const main = (options)=> {
-    console.time("Build Time");
+    const app = express();
+    const root = path.join(process.cwd(), "routes");
+    readFiles(root, root, app);
+    app.use(express.static(path.join(process.cwd(), ".build")));
 
-    fs.mkdir(path.join(import.meta.dirname, ".build"), {recursive: true});
-    readFiles(srcRoot);
-
-    console.timeEnd("Build Time");
+    console.timeEnd("Build Completed In");
+    return app;
 }
 
-const readFiles = async (dir)=>{
+const readFiles = async (dir, root, app)=>{
     const files = await fs.readdir(dir, {withFileTypes: true});
 
     for(let i = 0; i < files.length; i++){
         let curDir = path.join(dir, files[i].name);
 
         if(files[i].isDirectory()) {
-            readFiles(curDir);
+            readFiles(curDir, root, app);
         }
     }
 
-    await parseDir(dir);
+    parseDir(dir);
 }
-
-main();
