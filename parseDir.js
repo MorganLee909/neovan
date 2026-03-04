@@ -76,6 +76,7 @@ const bundleFiles = async (files)=>{
         contents.js = `<script>${data[0].outputFiles[0].text}</script>`;
     }
 
+    if(files.neovan) fs.rm(path.dirname(files.html), {recursive: true});
     return contents;
 }
 
@@ -116,6 +117,7 @@ const splitNeovan = async (file)=>{
     return {
         html: htmlFile,
         css: css !== "" ? cssFile : undefined,
-        js: js !== "" ? jsFile : undefined
+        js: js !== "" ? jsFile : undefined,
+        neovan: true
     };
 }
