@@ -6,6 +6,7 @@ import parseDir from "./parseDir2.js";
 export default async (express, options = {})=> {
     console.time("Build Completed In");
 
+    await fs.rm(path.join(process.cwd(), ".build/"), {recursive: true, force: true});
     const app = express();
     const root = path.join(process.cwd(), "routes");
     readFiles(root, root, app);
