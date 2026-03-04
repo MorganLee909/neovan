@@ -14,6 +14,7 @@ export default async (dir)=>{
         data = await parseHtml(indexFile);
     }
     const bundle = await createBundle(data);
+    writeFile(dir, bundle);
     fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
 }
 
@@ -93,7 +94,6 @@ const createBundle = async (data)=>{
 
     const [buildData, html] = await Promise.all([esbuildProm, htmlProm]);
 
-    //potentially replaceable
     const comps = {html: html};
     for(let i = 0; i < buildData.outputFiles.length; i++){
         const ext = path.extname(buildData.outputFiles[i].path).replace(".", "");
@@ -105,8 +105,14 @@ const createBundle = async (data)=>{
 
 const mergeFiles = (comps)=>{
     const cssIndex = comps.html.indexOf("</head>");
-    const html = `${comps.html.slice(0, cssIndex)}${comps.css}${comps.html.slice(cssIndex)}`;
+    const html = `${comps.html.slice(0, cssIndex)}<style>${comps.css}</style>${comps.html.slice(cssIndex)}`;
 
     const jsIndex = html.indexOf("</body>");
-    return `${comps.html.slice(0, jsIndex)}${comps.js}${html.slice(jsIndex)}`;
+    return `${html.slice(0, jsIndex)}<script>${comps.js}</script>${html.slice(jsIndex)}`;
+}
+
+const writeFile = async (dir, bundle)=>{
+    const writeDir = dir.replace("routes", ".build");
+    await fs.mkdir(writeDir, {recursive: true});
+    await fs.writeFile(`${writeDir}/index.html`, bundle);
 }
