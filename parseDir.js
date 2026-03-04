@@ -6,23 +6,26 @@ import esbuild from "esbuild";
 
 export default async (dir)=>{
     const existingFiles = await checkFiles(dir);
-    if(!existingFiles.html) return;
+    if(!existingFiles.html && !existingFiles.neovan) return;
     const content = await bundleFiles(existingFiles);
     const html = mergeFiles(content);
     writeHtml(dir, html);
 }
 
 const checkFiles = async (dir)=>{
+    let neovanPath = path.join(dir, "index.neovan");
     let htmlPath = path.join(dir, "index.html");
     let cssPath = path.join(dir, "index.css");
     let jsPath = path.join(dir, "index.js");
 
-    let [html, css, js] = await Promise.allSettled([
+    let [neovan, html, css, js] = await Promise.allSettled([
+        fs.access(neovanPath, constants.F_OK),
         fs.access(htmlPath, constants.F_OK),
         fs.access(cssPath, constants.F_OK),
         fs.access(jsPath, constants.f_OK)
     ]);
 
+    if(neovan.status === "fulfilled") return {neovan: neovanPath};
     if(html.status !== "fulfilled") return {html: null};
     let files = {html: htmlPath};
     if(css.status === "fulfilled") files.css = cssPath;
@@ -33,6 +36,8 @@ const checkFiles = async (dir)=>{
 
 const bundleFiles = async (files)=>{
     const entryPoints = [];
+    if(files.neovan) files = await splitNeovan(files.neovan);
+
     if(files.css) entryPoints.push(files.css);
     if(files.js) entryPoints.push(files.js);
 
@@ -86,4 +91,31 @@ const writeHtml = async (dir, html)=>{
     const writeDir = `${dir.replace("/routes", "/.build")}`;
     await fs.mkdir(writeDir, {recursive: true});
     fs.writeFile(`${writeDir}/index.html`, html);
+}
+
+const splitNeovan = async (file)=>{
+    let data = await fs.readFile(file, "utf-8");
+    let parentPath = path.dirname(file);
+
+    let html = data.slice(data.indexOf("<contents>") + 10, data.indexOf("</contents>"));
+    let css = data.slice(data.indexOf("<style>") + 7, data.indexOf("</style>"));
+    let js = data.slice(data.indexOf("<script>") + 8, data.indexOf("</script>"));
+
+    let htmlFile = path.join(parentPath, "/tmp/index.html");
+    let cssFile = path.join(parentPath, "/tmp/index.css");
+    let jsFile = path.join(parentPath, "/tmp/index.js");
+
+    await fs.mkdir(path.join(parentPath, "tmp/"));
+
+    let result = await Promise.all([
+        fs.writeFile(htmlFile, html),
+        css === "" ? null : fs.writeFile(cssFile, css),
+        js === "" ? null : fs.writeFile(jsFile, js)
+    ]);
+
+    return {
+        html: htmlFile,
+        css: css !== "" ? cssFile : undefined,
+        js: js !== "" ? jsFile : undefined
+    };
 }
