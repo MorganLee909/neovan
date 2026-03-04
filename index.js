@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "path";
+import {constants} from "node:fs";
 
-import parseDir from "./parseDir.js";
+import parseComponent from "./parseComponent.js";
 
 export default async (express, options = {})=> {
     console.time("Build Completed In");
@@ -27,5 +28,21 @@ const readFiles = async (dir, root, app)=>{
         }
     }
 
-    parseDir(dir);
+    let indexFile = await findIndexFile(dir);
+    if(!indexFile) return;
+    parseComponent(indexFile);
+}
+
+const findIndexFile = async (dir)=>{
+    const neovanPath = path.join(dir, "index.neovan");
+    const htmlPath = path.join(dir, "index.html");
+
+    const [neovan, html] = await Promise.allSettled([
+        fs.access(path.join(dir, "index.neovan"), constants.F_OK),
+        fs.access(path.join(dir, "index.html"), constants.F_OK)
+    ]);
+
+    if(neovan.status === "fulfilled") return neovanPath;
+    if(html.status === "fulfilled") return htmlPath;
+    return null;
 }

@@ -1,17 +1,15 @@
 import fs from "node:fs/promises";
-import {constants} from "node:fs";
 import path from "path";
 import htmlMinifier from "html-minifier-terser";
 import esbuild from "esbuild";
 
-export default async (dir)=>{
-    const indexFile = await findIndex(dir);
-    if(!indexFile) return;
+export default async (file)=>{
+    const dir = path.dirname(file);
     let data = {};
-    if(path.extname(indexFile) === ".neovan"){
-        data = await getNeovanData(indexFile);
+    if(path.extname(file) === ".neovan"){
+        data = await getNeovanData(file);
     }else{
-        data = await parseHtml(indexFile);
+        data = await parseHtml(file);
     }
     const bundle = await createBundle(data);
     writeFile(dir, bundle);
