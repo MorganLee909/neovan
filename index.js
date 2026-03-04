@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "path";
 
-import parseDir from "./parseDir2.js";
+import parseDir from "./parseDir.js";
 
 export default async (express, options = {})=> {
     console.time("Build Completed In");
