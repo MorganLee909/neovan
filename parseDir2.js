@@ -11,7 +11,7 @@ export default async (dir)=>{
     if(path.extname(indexFile) === ".neovan"){
         data = await getNeovanData(indexFile);
     }else{
-        data = await parseHtml();
+        data = await parseHtml(indexFile);
     }
     fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
 }
@@ -56,5 +56,12 @@ const getNeovanData = async (index)=>{
 }
 
 const parseHtml = async (index)=>{
-    return null;
+    const parentPath = path.dirname(index);
+    const basename = path.basename(index, ".html");
+
+    return {
+        html: await fs.readFile(index, "utf-8"),
+        css: path.join(parentPath, `${basename}.css`),
+        js: path.join(parentPath, `${basename}.js`)
+    };
 }
