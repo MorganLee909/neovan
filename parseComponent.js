@@ -16,20 +16,6 @@ export default async (file)=>{
     fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
 }
 
-const findIndex = async (dir)=>{
-    const neovanPath = path.join(dir, "index.neovan");
-    const htmlPath = path.join(dir, "index.html");
-
-    const [neovan, html] = await Promise.allSettled([
-        fs.access(path.join(dir, "index.neovan"), constants.F_OK),
-        fs.access(path.join(dir, "index.html"), constants.F_OK)
-    ]);
-
-    if(neovan.status === "fulfilled") return neovanPath;
-    if(html.status === "fulfilled") return htmlPath;
-    return null;
-}
-
 const getNeovanData = async (index)=>{
     const neovan = await fs.readFile(index, "utf-8");
     const parentPath = path.dirname(index);
