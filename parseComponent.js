@@ -30,8 +30,8 @@ const getNeovanData = async (index)=>{
     await fs.mkdir(path.join(parentPath, "tmp/"));
 
     await Promise.all([
-        css === "" ? null : fs.writeFile(cssFile, css),
-        js === "" ? null : fs.writeFile(jsFile, js)
+        fs.writeFile(cssFile, css),
+        fs.writeFile(jsFile, js)
     ]);
 
     return {
