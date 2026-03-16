@@ -12,7 +12,6 @@ const parseComponent = async (file)=>{
     }else{
         data = await parseHtml(file);
     }
-    fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
     return await createBundle(data);
 }
 
@@ -21,8 +20,16 @@ const getNeovanData = async (index)=>{
     const parentPath = path.dirname(index);
     
     const html = neovan.slice(neovan.indexOf("<contents>") + 10, neovan.indexOf("</contents>"));
-    const css = neovan.slice(neovan.indexOf("<style>") + 7, neovan.indexOf("</style>"));
-    const js = neovan.slice(neovan.indexOf("<script>") + 8, neovan.indexOf("</script>"));
+    let css = "";
+    let js = "";
+    const cssIndex = neovan.indexOf("<style>");
+    if(cssIndex >= 0){
+        css = neovan.slice(cssIndex + 7, neovan.indexOf("</style>"));
+    }
+    const jsIndex = neovan.indexOf("<script>")
+    if(jsIndex >= 0){
+        js = neovan.slice(jsIndex + 8, neovan.indexOf("</script>"));
+    }
 
     const cssFile = path.join(parentPath, `tmp/${path.basename(index, ".neovan")}.css`);
     const jsFile = path.join(parentPath, `tmp/${path.basename(index, ".neovan")}.js`);
@@ -103,6 +110,8 @@ const createBundle = async (data)=>{
 }
 
 const mergeFiles = (comps)=>{
+    console.log(comps);
+    console.log();
     let cssIndex = comps.html.indexOf("</head>");
     cssIndex = cssIndex < 0 ? 0 : cssIndex;
     comps.css = comps.css ? `<style>${comps.css}</style>` : "";

@@ -30,7 +30,8 @@ const readFiles = async (dir, root, app)=>{
 
     let indexFile = await findIndexFile(dir);
     if(!indexFile) return;
-    writeBundleFile(dir, await parseComponent(indexFile));
+    await writeBundleFile(dir, await parseComponent(indexFile));
+    fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
 }
 
 const findIndexFile = async (dir)=>{
