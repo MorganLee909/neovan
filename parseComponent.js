@@ -104,15 +104,14 @@ const createBundle = async (data)=>{
 
 const mergeFiles = (comps)=>{
     let cssIndex = comps.html.indexOf("</head>");
-    cssIndex = cssIndex < 0 ? comps.html.length - 1 : cssIndex;
+    cssIndex = cssIndex < 0 ? 0 : cssIndex;
     comps.css = comps.css ? `<style>${comps.css}</style>` : "";
     const html = `${comps.html.slice(0, cssIndex)}${comps.css}${comps.html.slice(cssIndex)}`;
 
     let jsIndex = html.indexOf("</body>");
     jsIndex = jsIndex < 0 ? html.length : jsIndex;
     comps.js = comps.js ? `<script>${comps.js}</script>` : "";
-    let thing = `${html.slice(0, jsIndex)}${comps.js}${html.slice(jsIndex)}`;
-    return thing;
+    return `${html.slice(0, jsIndex)}${comps.js}${html.slice(jsIndex)}`;
 }
 
 const addComponents = async (html, dir)=>{
