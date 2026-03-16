@@ -3,7 +3,7 @@ import path from "path";
 import htmlMinifier from "html-minifier-terser";
 import esbuild from "esbuild";
 
-export default async (file)=>{
+const parseComponent = async (file)=>{
     const dir = path.dirname(file);
     let data = {};
     if(path.extname(file) === ".neovan"){
@@ -37,7 +37,8 @@ const getNeovanData = async (index)=>{
     return {
         html: html,
         css: cssFile,
-        js: jsFile
+        js: jsFile,
+        dir: parentPath
     };
 }
 
@@ -48,7 +49,8 @@ const parseHtml = async (index)=>{
     return {
         html: await fs.readFile(index, "utf-8"),
         css: path.join(parentPath, `${basename}.css`),
-        js: path.join(parentPath, `${basename}.js`)
+        js: path.join(parentPath, `${basename}.js`),
+        dir: parentPath
     };
 }
 
@@ -56,6 +58,8 @@ const createBundle = async (data)=>{
     const entryPoints = [];
     if(data.css) entryPoints.push(data.css);
     if(data.js) entryPoints.push(data.js);
+
+    data.html = await addComponents(data.html, data.dir);
 
     const esbuildProm = esbuild.build({
         entryPoints: entryPoints,
@@ -100,3 +104,23 @@ const writeFile = async (dir, bundle)=>{
     await fs.mkdir(writeDir, {recursive: true});
     await fs.writeFile(`${writeDir}/index.html`, bundle);
 }
+
+const addComponents = async (html, dir)=>{
+    let importStart = 0;
+    for(let i = 0; i < html.length; i++){
+        if(html[i] === "@"){
+            if(html[i-1] === "<"){
+                importStart = i + 1;
+            }else if(html[i+1] === ">"){
+                const importString = html.substring(importStart, i).trim();
+                console.log(importString);
+                const comp = await parseComponent(path.join(dir, importString))
+                console.log(comp);
+                html = html.slice(0, importStart - 2) + comp + html.slice(i+1);
+            }
+        }
+    }
+    return html;
+}
+
+export default parseComponent;
