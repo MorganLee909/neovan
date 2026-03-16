@@ -110,8 +110,6 @@ const createBundle = async (data)=>{
 }
 
 const mergeFiles = (comps)=>{
-    console.log(comps);
-    console.log();
     let cssIndex = comps.html.indexOf("</head>");
     cssIndex = cssIndex < 0 ? 0 : cssIndex;
     comps.css = comps.css ? `<style>${comps.css}</style>` : "";
