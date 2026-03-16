@@ -103,11 +103,16 @@ const createBundle = async (data)=>{
 }
 
 const mergeFiles = (comps)=>{
-    const cssIndex = comps.html.indexOf("</head>");
-    const html = `${comps.html.slice(0, cssIndex)}<style>${comps.css}</style>${comps.html.slice(cssIndex)}`;
+    let cssIndex = comps.html.indexOf("</head>");
+    cssIndex = cssIndex < 0 ? comps.html.length - 1 : cssIndex;
+    comps.css = comps.css ? `<style>${comps.css}</style>` : "";
+    const html = `${comps.html.slice(0, cssIndex)}${comps.css}${comps.html.slice(cssIndex)}`;
 
-    const jsIndex = html.indexOf("</body>");
-    return `${html.slice(0, jsIndex)}<script>${comps.js}</script>${html.slice(jsIndex)}`;
+    let jsIndex = html.indexOf("</body>");
+    jsIndex = jsIndex < 0 ? html.length : jsIndex;
+    comps.js = comps.js ? `<script>${comps.js}</script>` : "";
+    let thing = `${html.slice(0, jsIndex)}${comps.js}${html.slice(jsIndex)}`;
+    return thing;
 }
 
 const addComponents = async (html, dir)=>{
@@ -119,7 +124,7 @@ const addComponents = async (html, dir)=>{
             }else if(html[i+1] === ">"){
                 const importString = html.substring(importStart, i).trim();
                 const comp = await parseComponent(path.join(dir, importString))
-                html = html.slice(0, importStart - 2) + comp + html.slice(i+1);
+                html = html.slice(0, importStart - 2) + comp + html.slice(i+2);
             }
         }
     }
