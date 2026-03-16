@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import {constants} from "node:fs";
 import path from "path";
 import htmlMinifier from "html-minifier-terser";
 import esbuild from "esbuild";
@@ -11,9 +12,8 @@ const parseComponent = async (file)=>{
     }else{
         data = await parseHtml(file);
     }
-    const bundle = await createBundle(data);
-    writeFile(dir, bundle);
     fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
+    return await createBundle(data);
 }
 
 const getNeovanData = async (index)=>{
@@ -46,10 +46,21 @@ const parseHtml = async (index)=>{
     const parentPath = path.dirname(index);
     const basename = path.basename(index, ".html");
 
+    const cssPath = path.join(parentPath, `${basename}.css`);
+    const jsPath = path.join(parentPath, `${basename}.js`);
+
+    const proms = [
+        fs.readFile(index, "utf-8"),
+        fs.access(cssPath, constants.F_OK),
+        fs.access(jsPath, constants.F_OK)
+    ];
+
+    let [html, css, js] = await Promise.allSettled(proms);
+
     return {
-        html: await fs.readFile(index, "utf-8"),
-        css: path.join(parentPath, `${basename}.css`),
-        js: path.join(parentPath, `${basename}.js`),
+        html: html.value,
+        css: css.status === "fulfilled" ? cssPath : null,
+        js: js.status === "fulfilled" ? jsPath : null,
         dir: parentPath
     };
 }
@@ -99,12 +110,6 @@ const mergeFiles = (comps)=>{
     return `${html.slice(0, jsIndex)}<script>${comps.js}</script>${html.slice(jsIndex)}`;
 }
 
-const writeFile = async (dir, bundle)=>{
-    const writeDir = dir.replace("routes", ".build");
-    await fs.mkdir(writeDir, {recursive: true});
-    await fs.writeFile(`${writeDir}/index.html`, bundle);
-}
-
 const addComponents = async (html, dir)=>{
     let importStart = 0;
     for(let i = 0; i < html.length; i++){
@@ -113,9 +118,7 @@ const addComponents = async (html, dir)=>{
                 importStart = i + 1;
             }else if(html[i+1] === ">"){
                 const importString = html.substring(importStart, i).trim();
-                console.log(importString);
                 const comp = await parseComponent(path.join(dir, importString))
-                console.log(comp);
                 html = html.slice(0, importStart - 2) + comp + html.slice(i+1);
             }
         }

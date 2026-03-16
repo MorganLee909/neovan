@@ -30,7 +30,7 @@ const readFiles = async (dir, root, app)=>{
 
     let indexFile = await findIndexFile(dir);
     if(!indexFile) return;
-    parseComponent(indexFile);
+    writeBundleFile(dir, await parseComponent(indexFile));
 }
 
 const findIndexFile = async (dir)=>{
@@ -45,4 +45,10 @@ const findIndexFile = async (dir)=>{
     if(neovan.status === "fulfilled") return neovanPath;
     if(html.status === "fulfilled") return htmlPath;
     return null;
+}
+
+const writeBundleFile = async (dir, bundle)=>{
+    const writeDir = dir.replace("routes", ".build");
+    await fs.mkdir(writeDir, {recursive: true});
+    await fs.writeFile(`${writeDir}/index.html`, bundle);
 }
