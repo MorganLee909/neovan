@@ -4,34 +4,51 @@ import {constants} from "node:fs";
 
 import parseComponent from "./parseComponent.js";
 
-export default async (express, options = {})=> {
-    console.time("Build Completed In");
+export default async (express, options)=>{
+    let opts = {
+        production: true,
+        routesDir: "routes"
+    };
+    Object.assign(opts, options)
+
+    let app = express();
+
+    console.time("Build time");
 
     await fs.rm(path.join(process.cwd(), ".build/"), {recursive: true, force: true});
-    const app = express();
-    const root = path.join(process.cwd(), "routes");
-    readFiles(root, root, app);
-    app.use(express.static(path.join(process.cwd(), ".build")));
+    let root = path.join(process.cwd(), opts.routesDir);
+    await addRoute(root, root, app, opts);
 
-    console.timeEnd("Build Completed In");
+    console.timeEnd("Build time");
     return app;
 }
 
-const readFiles = async (dir, root, app)=>{
+const addRoute = async (dir, root, app, opts)=>{
     const files = await fs.readdir(dir, {withFileTypes: true});
+    const indexFile = await findIndexFile(dir);
+    if(!indexFile) return;
+
+    let route = dir.replace(root, "");
+    route = route === "" ? "/" : route;
+    if(opts.production){
+        const bundle = await parseComponent(indexFile);
+        const bundleLocation = dir.replace(opts.routesDir, "build");
+        const htmlPath = path.join(bundleLocation, "index.html");
+        await fs.mkdir(bundleLocation, {recursive: true});
+        await fs.writeFile(htmlPath, bundle);
+        app.get(route, async (req, res)=>{res.sendFile(htmlPath)});
+    }else{
+        app.get(route, async (req, res)=>{res.send(await parseComponent(indexFile))});
+    }
+    fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
 
     for(let i = 0; i < files.length; i++){
-        let curDir = path.join(dir, files[i].name);
+        const curDir = path.join(dir, files[i].name);
 
         if(files[i].isDirectory()) {
-            readFiles(curDir, root, app);
+            await addRoute(curDir, root, app, opts);
         }
     }
-
-    let indexFile = await findIndexFile(dir);
-    if(!indexFile) return;
-    await writeBundleFile(dir, await parseComponent(indexFile));
-    fs.rm(path.join(dir, "tmp/"), {recursive: true, force: true});
 }
 
 const findIndexFile = async (dir)=>{
@@ -46,10 +63,4 @@ const findIndexFile = async (dir)=>{
     if(neovan.status === "fulfilled") return neovanPath;
     if(html.status === "fulfilled") return htmlPath;
     return null;
-}
-
-const writeBundleFile = async (dir, bundle)=>{
-    const writeDir = dir.replace("routes", ".build");
-    await fs.mkdir(writeDir, {recursive: true});
-    await fs.writeFile(`${writeDir}/index.html`, bundle);
 }
