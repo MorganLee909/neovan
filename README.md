@@ -33,8 +33,10 @@ Depending on the size of your app, this can take some time due to reading throug
 Development environment is set by passing `production: false` in the options. When this is set, the routes will not be bundled at build time, in order to avoid large startup times every single time. Routes will be bundled when they are visited.
 
 ## Options
-| Property   | Type    | Default | Description                                         |
-|------------|---------|---------|-----------------------------------------------------|
-| production | boolean | true    | Sets environment                                    |
-| routesDir  | string  | routes  | Directory for containing code for routes/components |
-| buildDir   | string  | .build  | Directory where build files will be stored          |
+| Property    | Type    | Default | Description                                         |
+|-------------|---------|---------|-----------------------------------------------------|
+| production  | boolean | true    | Sets environment                                    |
+| routesDir   | string  | routes  | Directory for containing code for routes/components |
+| buildDir    | string  | .build  | Directory where build files will be stored          |
+| assetsDir   | string  | assets  | Directory for serving assets like images            |
+| assetsRoute | string  | /assets | Route to serve assets from                          |
