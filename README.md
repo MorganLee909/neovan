@@ -22,6 +22,40 @@ const app = await neovan(express, options);
 
 app.listen(8000);
 ```
+### File Structure
+With NeoVan, any directory with your `routes` directory that has an index file will be considered a route. You can either use `index.html` or `index.neovan`. Either of these files will create a GET route for that directory. You can mix and match these as you pleasewithin your routes so long as each route contains only one index file.
+
+#### index.html
+When using and `index.html` file then you can write this just as you would a standard HTML file. For CSS and JavaScript you have two different options. First, you can write your CSS and JavaScript directly in the HTML with style/script tags as you normally would. Also, you can create index.css and/or index.js files. These files will be automatically bundled with the HTML. Also, you are free to use import statements within both JS and CSS and it will bundle those imports together. All import routes are relative. You may mix and match index files and embedded CSS/JavaScript as you please, but I would recommend using one or the other.
+
+#### index.neovan
+The recommended option is to use `index.neovan`, since it is simpler for componentization. In this case, you will fit HTML/CSS/JS in a single file. CSS is contained in `<style></style>` and JavaScript is contained in `<script></script>`. Anything not included in one of these two tags will be considered HTML.
+
+```html
+<script>
+    document.body.querySelector("h1").style.color = "white";
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Example Page</title>
+    </head>
+    <body>
+        <h1>I am an example page</h1>
+    </body>
+</html>
+
+<style>
+    body{
+        background: black;
+    }
+</style>
+```
+
+## Components
+
 ## Environments
 
 ### Production
