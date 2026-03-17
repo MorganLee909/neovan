@@ -20,7 +20,7 @@ export default async (express, options)=>{
     await fs.rm(path.join(process.cwd(), ".build/"), {recursive: true, force: true});
     let root = path.join(process.cwd(), opts.routesDir);
     await addRoute(root, root, app, opts);
-    app.use(assetsRoute, express.static(opts.assetsDir));
+    app.use(opts.assetsRoute, express.static(opts.assetsDir));
 
     console.timeEnd("Build time");
     return app;
@@ -35,11 +35,11 @@ const addRoute = async (dir, root, app, opts)=>{
     route = route === "" ? "/" : route;
     if(opts.production){
         const bundle = await parseComponent(indexFile);
-        const bundleLocation = dir.replace(opts.routesDir, "build");
+        const bundleLocation = dir.replace(opts.routesDir, ".build");
         const htmlPath = path.join(bundleLocation, "index.html");
         await fs.mkdir(bundleLocation, {recursive: true});
         await fs.writeFile(htmlPath, bundle);
-        app.get(route, async (req, res)=>{res.sendFile(htmlPath)});
+        app.get(route, async (req, res)=>{res.sendFile(htmlPath, {dotfiles: "allow"})});
     }else{
         app.get(route, async (req, res)=>{res.send(await parseComponent(indexFile))});
     }
