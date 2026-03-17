@@ -7,7 +7,8 @@ import parseComponent from "./parseComponent.js";
 export default async (express, options)=>{
     let opts = {
         production: true,
-        routesDir: "routes"
+        routesDir: "routes",
+        assetsDir: "assets"
     };
     Object.assign(opts, options)
 
@@ -18,6 +19,7 @@ export default async (express, options)=>{
     await fs.rm(path.join(process.cwd(), ".build/"), {recursive: true, force: true});
     let root = path.join(process.cwd(), opts.routesDir);
     await addRoute(root, root, app, opts);
+    app.use(`/${opts.assetsDir}`, express.static(opts.assetsDir));
 
     console.timeEnd("Build time");
     return app;
