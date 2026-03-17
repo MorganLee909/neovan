@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import {constants} from "node:fs";
+import os from "os";
 import path from "path";
 import htmlMinifier from "html-minifier-terser";
 import esbuild from "esbuild";
@@ -12,7 +13,9 @@ const parseComponent = async (file)=>{
     }else{
         data = await parseHtml(file);
     }
-    return await createBundle(data);
+    const bundle = await createBundle(data);
+    if(data.tmpDir) fs.rm(data.tmpDir, {recursive: true, force: true});
+    return bundle;
 }
 
 const getNeovanData = async (index)=>{
@@ -31,10 +34,9 @@ const getNeovanData = async (index)=>{
         js = neovan.slice(jsIndex + 8, neovan.indexOf("</script>"));
     }
 
-    const cssFile = path.join(parentPath, `tmp/${path.basename(index, ".neovan")}.css`);
-    const jsFile = path.join(parentPath, `tmp/${path.basename(index, ".neovan")}.js`);
-
-    await fs.mkdir(path.join(parentPath, "tmp/"));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "neovan-"));
+    const cssFile = path.join(tmpDir, `${path.basename(index, ".neovan")}.css`);
+    const jsFile = path.join(tmpDir, `${path.basename(index, ".neovan")}.js`);
 
     await Promise.all([
         fs.writeFile(cssFile, css),
@@ -45,7 +47,8 @@ const getNeovanData = async (index)=>{
         html: html,
         css: cssFile,
         js: jsFile,
-        dir: parentPath
+        dir: parentPath,
+        tmpDir: tmpDir
     };
 }
 
