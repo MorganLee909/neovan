@@ -1,18 +1,26 @@
 {
-  "name": "substratum",
+  "name": "neovan",
   "version": "0.1.0",
-  "description": "Simple JS framework",
-  "homepage": "https://github.com/MorganLee909/substratum#readme",
+  "description": "Front-end anti-framework",
+  "homepage": "https://neovan.dev",
   "bugs": {
-    "url": "https://github.com/MorganLee909/substratum/issues"
+    "url": "https://git.inletsites.dev/Lee/NeoVan/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MorganLee909/substratum.git"
+    "url": "https://git.inletsites.dev/Lee/NeoVan"
   },
   "author": "Lee Morgan",
   "type": "module",
   "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "vanilla javascript",
+    "vanilla js",
+    "framework",
+    "frontend utilities",
+    "web basics"
+  ],
   "dependencies": {
     "esbuild": "^0.27.3",
     "html-minifier-terser": "^7.2.0"
