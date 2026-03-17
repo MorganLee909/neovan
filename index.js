@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "path";
 import {constants} from "node:fs";
+import os from "os";
 
 import parseComponent from "./parseComponent.js";
 
@@ -14,6 +15,8 @@ export default async (express, options)=>{
     Object.assign(opts, options)
 
     let app = express();
+
+    removeOldTmpDirs();
 
     console.time("Build time");
 
@@ -66,4 +69,13 @@ const findIndexFile = async (dir)=>{
     if(neovan.status === "fulfilled") return neovanPath;
     if(html.status === "fulfilled") return htmlPath;
     return null;
+}
+
+const removeOldTmpDirs = async ()=>{
+    const entries = await fs.readdir(os.tmpdir());
+    for(let i = 0; i < entries.length; i++){
+        if(entries[i].startsWith("neovan-")){
+            fs.rm(entries[i].name, {recursive: true, force: true});
+        }
+    }
 }
