@@ -22,16 +22,16 @@ const getNeovanData = async (index)=>{
     const neovan = await fs.readFile(index, "utf-8");
     const parentPath = path.dirname(index);
     
-    const html = neovan.slice(neovan.indexOf("<contents>") + 10, neovan.indexOf("</contents>"));
+    const html = neovan.slice(neovan.indexOf("<@html>") + 11, neovan.indexOf("<@/html>"));
     let css = "";
     let js = "";
-    const cssIndex = neovan.indexOf("<style>");
+    const cssIndex = neovan.indexOf("<@style>");
     if(cssIndex >= 0){
-        css = neovan.slice(cssIndex + 7, neovan.indexOf("</style>"));
+        css = neovan.slice(cssIndex + 8, neovan.indexOf("<@/style>"));
     }
-    const jsIndex = neovan.indexOf("<script>")
+    const jsIndex = neovan.indexOf("<@script>")
     if(jsIndex >= 0){
-        js = neovan.slice(jsIndex + 8, neovan.indexOf("</script>"));
+        js = neovan.slice(jsIndex + 9, neovan.indexOf("<@/script>"));
     }
 
     const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "neovan-"));
