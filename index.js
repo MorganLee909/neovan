@@ -75,7 +75,7 @@ const removeOldTmpDirs = async ()=>{
     const entries = await fs.readdir(os.tmpdir());
     for(let i = 0; i < entries.length; i++){
         if(entries[i].startsWith("neovan-")){
-            fs.rm(entries[i].name, {recursive: true, force: true});
+            fs.rm(entries[i], {recursive: true, force: true});
         }
     }
 }
