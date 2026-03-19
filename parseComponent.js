@@ -6,7 +6,7 @@ import htmlMinifier from "html-minifier-terser";
 import esbuild from "esbuild";
 import forceRelativePath from "./relativePathPlugin.js";
 
-const parseComponent = async (file)=>{
+const parseComponent = async (file, prod)=>{
     const dir = path.dirname(file);
     let data = {};
     if(path.extname(file) === ".neovan"){
@@ -14,7 +14,7 @@ const parseComponent = async (file)=>{
     }else{
         data = await parseHtml(file);
     }
-    const bundle = await createBundle(data);
+    const bundle = await createBundle(data, prod);
     if(data.tmpDir) fs.rm(data.tmpDir, {recursive: true, force: true});
     return bundle;
 }
@@ -76,7 +76,7 @@ const parseHtml = async (index)=>{
     };
 }
 
-const createBundle = async (data)=>{
+const createBundle = async (data, prod)=>{
     const entryPoints = [];
     if(data.css) entryPoints.push(data.css);
     if(data.js) entryPoints.push(data.js);
@@ -89,7 +89,7 @@ const createBundle = async (data)=>{
     const esbuildProm = esbuild.build({
         entryPoints: entryPoints,
         bundle: true,
-        minify: true,
+        minify: prod,
         write: false,
         plugins: plugins,
         outdir: "/"

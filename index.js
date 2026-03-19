@@ -37,7 +37,7 @@ const addRoute = async (dir, root, app, opts)=>{
     let route = dir.replace(root, "");
     route = route === "" ? "/" : route;
     if(opts.production){
-        const bundle = await parseComponent(indexFile);
+        const bundle = await parseComponent(indexFile, opts.production);
         const bundleLocation = dir.replace(opts.routesDir, ".build");
         const htmlPath = path.join(bundleLocation, "index.html");
         await fs.mkdir(bundleLocation, {recursive: true});
