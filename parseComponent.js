@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import htmlMinifier from "html-minifier-terser";
 import esbuild from "esbuild";
+import forceRelativePath from "./relativePathPlugin.js";
 
 const parseComponent = async (file)=>{
     const dir = path.dirname(file);
@@ -82,11 +83,15 @@ const createBundle = async (data)=>{
 
     data.html = await addComponents(data.html, data.dir);
 
+    const plugins = [];
+    if(data.tmpDir) plugins.push(forceRelativePath(data.dir));
+
     const esbuildProm = esbuild.build({
         entryPoints: entryPoints,
         bundle: true,
         minify: true,
         write: false,
+        plugins: plugins,
         outdir: "/"
     });
     const htmlProm = htmlMinifier.minify(data.html, {
