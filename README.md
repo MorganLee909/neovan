@@ -32,29 +32,32 @@ When using and `index.html` file then you can write this just as you would a sta
 The recommended option is to use `index.neovan`, since it is simpler for componentization. In this case, you will fit HTML/CSS/JS in a single file. CSS is contained in `<style></style>` and JavaScript is contained in `<script></script>`. Anything not included in one of these two tags will be considered HTML.
 
 ```html
-<script>
+<@script>
     document.body.querySelector("h1").style.color = "white";
-</script>
+<@/script>
 
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Example Page</title>
-    </head>
-    <body>
-        <h1>I am an example page</h1>
-    </body>
-</html>
+<@html>
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="utf-8">
+            <title>Example Page</title>
+        </head>
+        <body>
+            <h1>I am an example page</h1>
+        </body>
+    </html>
+<@/html>
 
-<style>
+<@style>
     body{
         background: black;
     }
-</style>
+<@/style>
 ```
 
 ## Components
+Components work the same as your index files, but you can't name them "index", name them anything else. You can use 'my-component.neovan' or 'my-component.html' and they will work the same. You will include them in other files with `<@ ./relative/path/to/my-component.neovan @>`.
 
 ## Environments
 
